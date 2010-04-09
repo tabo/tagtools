@@ -7,12 +7,11 @@ class Serializer(object):
     def str2tags(cls, tagstr):
         if not tagstr:
             return []
-        results = []
-        for tag in tagstr.split(cls.SEPARATOR):
-            tag = tag.strip()
-            if tag:
-                results.append(tag)
-        return results
+        return [
+            tag.strip()
+            for tag in tagstr.split(cls.SEPARATOR)
+            if tag.strip()
+        ]
 
     @classmethod
     def tags2str(cls, tags):
