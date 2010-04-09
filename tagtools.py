@@ -1,20 +1,35 @@
-import unicodedata
+""" tagtools
+"""
+
 
 class Serializer(object):
+    """ TODO: docstring
+    """
     SEPARATOR = JOINER = TAGS_WITH_SPACES = None
 
     @classmethod
     def str2tags(cls, tagstr):
+        """ TODO: docstring
+        """
         if not tagstr:
             return []
-        return [
-            tag.strip()
-            for tag in tagstr.split(cls.SEPARATOR)
-            if tag.strip()
-        ]
+        tags, keys = [], set()
+        for tag in tagstr.split(cls.SEPARATOR):
+            tag = tag.strip()
+            cleantag = cls.normalize(tag)
+            if not cleantag or cleantag in keys:
+                # Ignore if the normalized tag is empty or if there is
+                # already tag with the same normalized value.
+                # TaG, TAG, tag, taG ==> TaG
+                continue
+            tags.append((cleantag, tag))
+            keys.add(cleantag)
+        return tags
 
     @classmethod
     def tags2str(cls, tags):
+        """ TODO: docstring
+        """
         if cls.TAGS_WITH_SPACES:
             return cls.JOINER.join(tags)
         results = []
@@ -25,28 +40,53 @@ class Serializer(object):
             results.append(tag)
         return cls.JOINER.join(results)
 
+    @staticmethod
+    def normalize(tag):
+        """ TODO: docstring
+        """
+        return tag.lower()
+
 
 class DeliciousSerializer(Serializer):
+    """ TODO: docstring
+    """
     SEPARATOR = JOINER = ' '
     TAGS_WITH_SPACES = False
 
 
 class CommaSerializer(Serializer):
+    """ TODO: docstring
+    """
     SEPARATOR = ','
     JOINER = ', '
     TAGS_WITH_SPACES = True
 
 
 class FlickrSerializer(Serializer):
+    """ TODO: docstring
+    """
+    SEPARATOR = ' '
 
     @classmethod
     def str2tags(cls, tagstr):
+        """ TODO: docstring
+        """
         if not tagstr:
             return []
         if '"' not in tagstr:
-            return [tag.strip() for tag in tagstr.split(' ') if tag.strip()]
+            return super(FlickrSerializer, cls).str2tags(tagstr)
         lstr = list(tagstr.strip())
-        results, tok, prev, quoted = [], '', '', False
+        tags, keys, tok, prev, quoted = [], set(), '', '', False
+
+        def addtok(tok):
+            """ TODO: docstring
+            """
+            tok = tok.strip()
+            cleantok = cls.normalize(tok)
+            if cleantok and cleantok not in keys:
+                tags.append((cleantok, tok))
+                keys.add(cleantok)
+
         while lstr:
             char = lstr[0]
             if char == '"':
@@ -56,7 +96,7 @@ class FlickrSerializer(Serializer):
                     (quoted and prev == '"' and '"' not in lstr)):
                 if tok:
                     quoted = False
-                    results.append(tok.strip())
+                    addtok(tok)
                     tok = ''
             else:
                 tok += char
@@ -64,25 +104,19 @@ class FlickrSerializer(Serializer):
             del lstr[0]
         tok = tok.strip()
         if tok:
-            results.append(tok)
-        return results
+            addtok(tok)
+        return tags
 
     @classmethod
     def tags2str(cls, tags):
+        """ TODO: docstring
+        """
         return ' '.join([
             '"%s"' % tag if ' ' in tag else tag
             for tag in tags])
 
 
-def normalize(tags):
-    results = {}
-    for tag in tags:
-        cleantag = unicodedata.tag.strip().lower()
-        results[tag] = cleantag
-    return results
-
-
-
-
 class TagWithSpaceException(Exception):
+    """ TODO: docstring
+    """
     pass
