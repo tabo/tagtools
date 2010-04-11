@@ -1,6 +1,6 @@
 # Sphinx inventory version 1
 # Project: tagtools
-# Version: 0.8a
+# Version: 0.8b
 tagtools mod index.html
 tagtools.Serializer.tags2str classmethod index.html
 tagtools.Serializer.str2tags classmethod index.html
