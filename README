@@ -1,0 +1,10 @@
+tagtools
+========
+
+Python library that parses raw strings with tags into a list of tags and
+viceversa.
+
+Includes the tag parsing methods used in Flickr (FlickrSerializer), Delicious
+(DeliciousSerializer) and tag separation with commas (CommaSerializer).
+
+Handles customizable per-tag normalization to avoid tag duplicates.
