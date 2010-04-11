@@ -3,7 +3,7 @@
 """Test tagtools.py"""
 
 from tagtools import FlickrSerializer, DeliciousSerializer, CommaSerializer, \
-                     TagWithSpaceException
+                     TagWithSeparatorException
 import unittest
 
 
@@ -108,7 +108,7 @@ class TestDeliciousSerializer(unittest.TestCase):
         test(['t1'], 't1')
         test(['t1', 't2', 't3'], 't1 t2 t3')
         test(['t1', 't2', 't3'], 't1 t2 t3')
-        self.assertRaises(TagWithSpaceException,
+        self.assertRaises(TagWithSeparatorException,
             DeliciousSerializer.tags2str, ['t 1'])
 
 
@@ -139,6 +139,8 @@ class TestCommaSerializer(unittest.TestCase):
         test(['t1'], 't1')
         test(['t1', 't2', 't3'], 't1, t2, t3')
         test(['t  1', 't   2', 't 3'], 't  1, t   2, t 3')
+        self.assertRaises(TagWithSeparatorException,
+            CommaSerializer.tags2str, ['t,1'])
 
 
 if __name__ == "__main__":  # pragma: no cover

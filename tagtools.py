@@ -1,15 +1,62 @@
-""" tagtools
+"""
+
+tagtools
+--------
+
+:synopsys: Python helpers to work with tags.
+:copyright: 2010 by Gustavo Picon
+:license: Apache License 2.0
+:version: 0.8a
+:url: http://code.tabo.pe/tagtools/
+:documentation:
+   `tagtools-docs
+   <http://docs.tabo.pe/tagtools/tip/>`_
+:examples:
+   `tagtools-tests
+   <http://code.tabo.pe/tagtools/src/tip/tests.py>`_
+
 """
 
 
+__version__ = '0.8a'
+
+
 class Serializer(object):
-    """ TODO: docstring
+    """ Provides methods to subclass tagging serializers.
+
+    Must not be used directly, use a subclass instead.
+
+    The subclasses are not designed to be instantiated, they contains only
+    class and static methods.
     """
     SEPARATOR = JOINER = TAGS_WITH_SPACES = None
 
     @classmethod
     def str2tags(cls, tagstr):
-        """ TODO: docstring
+        """ Takes a raw string with tags and returns a list of parsed tags.
+
+        :param tagstr: A string with tags as entered by a user on a form.
+
+        :returns: A list of tuples. Each tuple represents a tag and has
+                  two elements:
+
+                  - The normalized tag. Normalization is done by the
+                    :meth:`normalize` static method.
+                  - The raw tag as was entered, but without leading/trailing
+                    whitespace.
+
+        .. note::
+
+            If more than one tag have the same normalized form, only the first
+            tag will be included in the resulting list. So for instance, if
+            using the :class:`CommaSerializer` subclass::
+
+                CommaSerializer.str2tags("TaG, tag, TAG")
+
+            would return::
+
+                [('tag', 'TaG')]
+
         """
         if not tagstr:
             return []
@@ -19,7 +66,7 @@ class Serializer(object):
             cleantag = cls.normalize(tag)
             if not cleantag or cleantag in keys:
                 # Ignore if the normalized tag is empty or if there is
-                # already tag with the same normalized value.
+                # already a tag with the same normalized value.
                 # TaG, TAG, tag, taG ==> TaG
                 continue
             tags.append((cleantag, tag))
@@ -28,21 +75,37 @@ class Serializer(object):
 
     @classmethod
     def tags2str(cls, tags):
-        """ TODO: docstring
+        """ Takes a list of tags and returns a string that can be edited.
+
+        :param tags: A list of tags that are correct for the Serializer being
+                     used. For instance, when using :class:`CommaSerializer`,
+                     tags can't have commas on them.
+
+        :returns: A string that, if serialized, would return the same tags.
+
+        .. note::
+
+            The use case for this method is when a program needs to
+            provide a user interface for the user to edit the tags, and
+            the user interface is a single input entry.
+
         """
-        if cls.TAGS_WITH_SPACES:
-            return cls.JOINER.join(tags)
         results = []
         for tag in tags:
-            if ' ' in tag:
-                raise TagWithSpaceException(
-                    "Tag can't have a space: '%s'" % tag)
+            if cls.SEPARATOR in tag:
+                raise TagWithSeparatorException(
+                    "Tag can't include the separator: '%s'" % tag)
             results.append(tag)
         return cls.JOINER.join(results)
 
     @staticmethod
     def normalize(tag):
-        """ TODO: docstring
+        """ Normalizes a single tag. Called by :meth:`str2tags`
+
+        :param tag: A single tag, as a string. It is assumed that the tag has
+                    no leading/trailing whitespace.
+
+        :returns: A normalized version of the tag.
         """
         return tag.lower()
 
@@ -117,7 +180,7 @@ class FlickrSerializer(Serializer):
             for tag in tags])
 
 
-class TagWithSpaceException(Exception):
+class TagWithSeparatorException(Exception):
     """ TODO: docstring
     """
     pass
