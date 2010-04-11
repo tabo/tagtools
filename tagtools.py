@@ -112,7 +112,8 @@ class FlickrSerializer(Serializer):
         """ TODO: docstring
         """
         return ' '.join([
-            '"%s"' % tag if ' ' in tag else tag
+            # no X if Y else Z in python<=2.4
+            {True: '"%s"', False: '%s'}[' ' in tag] % tag
             for tag in tags])
 
 
