@@ -6,7 +6,7 @@ tagtools
 :synopsys: Python helpers to work with tags.
 :copyright: 2010 by Gustavo Picon
 :license: Apache License 2.0
-:version: 0.8a
+:version: 0.8b
 :url: http://code.tabo.pe/tagtools/
 :documentation:
    `tagtools-docs
@@ -27,7 +27,7 @@ Handles customizable per-tag normalization to avoid tag duplicates.
 """
 
 
-__version__ = '0.8a'
+__version__ = '0.8b'
 
 
 class Serializer(object):
