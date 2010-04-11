@@ -15,6 +15,15 @@ tagtools
    `tagtools-tests
    <http://code.tabo.pe/tagtools/src/tip/tests.py>`_
 
+Python library that parses raw strings with tags into a list of tags and
+viceversa.
+
+Includes the tag parsing methods used in Flickr (:class:`FlickrSerializer`),
+Delicious (:class:`DeliciousSerializer`) and tag separation with commas
+(:class:`CommaSerializer`).
+
+Handles customizable per-tag normalization to avoid tag duplicates.
+
 """
 
 
@@ -24,7 +33,8 @@ __version__ = '0.8a'
 class Serializer(object):
     """ Provides methods to subclass tagging serializers.
 
-    Must not be used directly, use a subclass instead.
+    Must not be used directly, use a subclass (:class:`FlickrSerializer`,
+    :class:`DeliciousSerializer` or :class:`CommaSerializer`) instead.
 
     The subclasses are not designed to be instantiated, they contains only
     class and static methods.
@@ -83,6 +93,11 @@ class Serializer(object):
 
         :returns: A string that, if serialized, would return the same tags.
 
+        :raise TagWithSeparatorException:
+
+          * if a tag has a space when using :class:`DeliciousSerializer`, or
+          * a tag has a comma when using :class:`CommaSerializer`
+
         .. note::
 
             The use case for this method is when a program needs to
@@ -106,19 +121,71 @@ class Serializer(object):
                     no leading/trailing whitespace.
 
         :returns: A normalized version of the tag.
+
+        .. note::
+
+            By default, all Serializers will call `.lower()` on the
+            given `tag`. You can change this behavior either by
+            further subclassing or composition, like::
+
+                class MySerializer(CommaSerializer):
+
+                    @staticmethod
+                    def normalize(tag):
+                        return tag.upper()
         """
         return tag.lower()
 
 
 class DeliciousSerializer(Serializer):
-    """ TODO: docstring
+    """ Serializer for Delicious-like tags.
+
+    Delicious tags are separated by spaces, and don't allow spaces in a tag.
+
+    Tags are normalized as lowercase by default to avoid tag duplication.
+
+    Example::
+
+        DeliciousSerializer.str2tags('Tag1 Tag2 TAG1 Tag3')
+
+    returns::
+
+        [('tag1', 'Tag1'), ('tag2', 'Tag2'), ('tag3', 'Tag3')]
+
+    and::
+
+        DeliciousSerializer.tags2str(['tag1', 'tag2', 'tag3'])
+
+    returns::
+
+        'tag1 tag2 tag3'
     """
     SEPARATOR = JOINER = ' '
     TAGS_WITH_SPACES = False
 
 
 class CommaSerializer(Serializer):
-    """ TODO: docstring
+    """ Serializer for comma-separated tags.
+
+    Comma separated tags don't allow commas in a tag.
+
+    Tags are normalized as lowercase by default to avoid tag duplication.
+
+    Example::
+
+        CommaSerializer.str2tags('Tag 1, Tag2, TAG 1, Tag3')
+
+    returns::
+
+        [('tag 1', 'Tag 1'), ('tag2', 'Tag2'), ('tag3', 'Tag3')]
+
+    and::
+
+        CommaSerializer.tags2str(['tag1', 'tag2', 'tag3'])
+
+    returns::
+
+        'tag1, tag2, tag3'
     """
     SEPARATOR = ','
     JOINER = ', '
@@ -126,14 +193,40 @@ class CommaSerializer(Serializer):
 
 
 class FlickrSerializer(Serializer):
-    """ TODO: docstring
+    """ Serializer for Flickr-like tags.
+
+    Flickr tags are separated by spaces. If a tag has spaces, it must be
+    enclosed with double quotes.
+
+    Tags are normalized as lowercase by default to avoid tag duplication.
+
+    Example::
+
+        FlickrSerializer.str2tags('"Tag 1" Tag2 "TAG 1" Tag3')
+
+    returns::
+
+        [('tag 1', 'Tag 1'), ('tag2', 'Tag2'), ('tag3', 'Tag3')]
+
+    and::
+
+        FlickrSerializer.tags2str(['tag 1', 'tag2', 'tag3'])
+
+    returns::
+
+        '"tag 1" tag2 tag3'
+
+    .. note::
+
+        Flickr tags are very... peculiar.  The test suite has lot of weird
+        cases and they all work exactly like Flickr. Please let me know if
+        there is a corner case I'm not covering.
     """
     SEPARATOR = ' '
 
     @classmethod
     def str2tags(cls, tagstr):
-        """ TODO: docstring
-        """
+        "Parser for the incredibly weird flickr tags (see tests)."
         if not tagstr:
             return []
         if '"' not in tagstr:
@@ -142,11 +235,12 @@ class FlickrSerializer(Serializer):
         tags, keys, tok, prev, quoted = [], set(), '', '', False
 
         def addtok(tok):
-            """ TODO: docstring
-            """
+            "adds a valid token (tag) to both the tags list and the keys set"
             tok = tok.strip()
             cleantok = cls.normalize(tok)
             if cleantok and cleantok not in keys:
+                # don't add the tag if it's invalid (empty) or if the
+                # normalized value is already in the keys set
                 tags.append((cleantok, tok))
                 keys.add(cleantok)
 
@@ -172,8 +266,7 @@ class FlickrSerializer(Serializer):
 
     @classmethod
     def tags2str(cls, tags):
-        """ TODO: docstring
-        """
+        'Returns a string of tags. If a tag has spaces, enclose it with "s'
         return ' '.join([
             # no X if Y else Z in python<=2.4
             {True: '"%s"', False: '%s'}[' ' in tag] % tag
@@ -181,6 +274,4 @@ class FlickrSerializer(Serializer):
 
 
 class TagWithSeparatorException(Exception):
-    """ TODO: docstring
-    """
-    pass
+    "Raised when a tag includes the separator used by the serializer."
