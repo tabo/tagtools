@@ -10,10 +10,10 @@ tagtools
 :url: http://code.tabo.pe/tagtools/
 :documentation:
    `tagtools-docs
-   <http://docs.tabo.pe/tagtools/0.8b/>`_
+   <http://docs.tabo.pe/tagtools/tip/>`_
 :examples:
    `tagtools-tests
-   <http://code.tabo.pe/tagtools/src/0.8b/tests.py>`_
+   <http://code.tabo.pe/tagtools/src/tip/tests.py>`_
 
 Python library that parses raw strings with tags into a list of tags and
 viceversa.
