@@ -29,7 +29,7 @@ long_desc = open(root_dir + '/README').read()
 setup(
     name='tagtools',
     version=version,
-    url='http://code.tabo.pe/tagtools/',
+    url='https://tabo.pe/projects/tagtools/',
     author='Gustavo Picon',
     author_email='tabo@tabo.pe',
     license='Apache License 2.0',

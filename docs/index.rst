@@ -1,5 +1,5 @@
-:mod:`tagtools` --- Python helpers to work with tags
-====================================================
+tagtools
+========
 
 .. automodule:: tagtools
 
@@ -19,6 +19,13 @@
 
    .. autoclass:: CommaSerializer
       :show-inheritance:
+
+
+Contents
+========
+
+.. toctree::
+   :maxdepth: 2
 
 
 Indices and tables
