@@ -1,44 +1,8 @@
-"""
-
-tagtools
---------
-
-:synopsys: Python helpers to work with tags.
-:copyright: 2010 by Gustavo Picon
-:license: Apache License 2.0
-:version: 0.8b
-:url: http://code.tabo.pe/tagtools/
-:documentation:
-   `tagtools-docs
-   <http://docs.tabo.pe/tagtools/tip/>`_
-:examples:
-   `tagtools-tests
-   <http://code.tabo.pe/tagtools/src/tip/tests.py>`_
-
-Python library that parses raw strings with tags into a list of tags and
-viceversa.
-
-Includes the tag parsing methods used in Flickr (:class:`FlickrSerializer`),
-Delicious (:class:`DeliciousSerializer`) and tag separation with commas
-(:class:`CommaSerializer`).
-
-Handles customizable per-tag normalization to avoid tag duplicates.
-
-"""
-
 
 __version__ = '0.8b'
 
 
 class Serializer(object):
-    """ Provides methods to subclass tagging serializers.
-
-    Must not be used directly, use a subclass (:class:`FlickrSerializer`,
-    :class:`DeliciousSerializer` or :class:`CommaSerializer`) instead.
-
-    The subclasses are not designed to be instantiated, they contains only
-    class and static methods.
-    """
     SEPARATOR = JOINER = TAGS_WITH_SPACES = None
 
     @classmethod
@@ -54,19 +18,6 @@ class Serializer(object):
                     :meth:`normalize` static method.
                   - The raw tag as was entered, but without leading/trailing
                     whitespace.
-
-        .. note::
-
-            If more than one tag have the same normalized form, only the first
-            tag will be included in the resulting list. So for instance, if
-            using the :class:`CommaSerializer` subclass::
-
-                CommaSerializer.str2tags("TaG, tag, TAG")
-
-            would return::
-
-                [('tag', 'TaG')]
-
         """
         if not tagstr:
             return []
@@ -97,13 +48,6 @@ class Serializer(object):
 
           * if a tag has a space when using :class:`DeliciousSerializer`, or
           * a tag has a comma when using :class:`CommaSerializer`
-
-        .. note::
-
-            The use case for this method is when a program needs to
-            provide a user interface for the user to edit the tags, and
-            the user interface is a single input entry.
-
         """
         results = []
         for tag in tags:
@@ -121,18 +65,6 @@ class Serializer(object):
                     no leading/trailing whitespace.
 
         :returns: A normalized version of the tag.
-
-        .. note::
-
-            By default, all Serializers will call `.lower()` on the
-            given `tag`. You can change this behavior either by
-            further subclassing or composition, like::
-
-                class MySerializer(CommaSerializer):
-
-                    @staticmethod
-                    def normalize(tag):
-                        return tag.upper()
         """
         return tag.lower()
 
@@ -143,22 +75,6 @@ class DeliciousSerializer(Serializer):
     Delicious tags are separated by spaces, and don't allow spaces in a tag.
 
     Tags are normalized as lowercase by default to avoid tag duplication.
-
-    Example::
-
-        DeliciousSerializer.str2tags('Tag1 Tag2 TAG1 Tag3')
-
-    returns::
-
-        [('tag1', 'Tag1'), ('tag2', 'Tag2'), ('tag3', 'Tag3')]
-
-    and::
-
-        DeliciousSerializer.tags2str(['tag1', 'tag2', 'tag3'])
-
-    returns::
-
-        'tag1 tag2 tag3'
     """
     SEPARATOR = JOINER = ' '
     TAGS_WITH_SPACES = False
@@ -170,22 +86,6 @@ class CommaSerializer(Serializer):
     Comma separated tags don't allow commas in a tag.
 
     Tags are normalized as lowercase by default to avoid tag duplication.
-
-    Example::
-
-        CommaSerializer.str2tags('Tag 1, Tag2, TAG 1, Tag3')
-
-    returns::
-
-        [('tag 1', 'Tag 1'), ('tag2', 'Tag2'), ('tag3', 'Tag3')]
-
-    and::
-
-        CommaSerializer.tags2str(['tag1', 'tag2', 'tag3'])
-
-    returns::
-
-        'tag1, tag2, tag3'
     """
     SEPARATOR = ','
     JOINER = ', '
@@ -199,28 +99,6 @@ class FlickrSerializer(Serializer):
     enclosed with double quotes.
 
     Tags are normalized as lowercase by default to avoid tag duplication.
-
-    Example::
-
-        FlickrSerializer.str2tags('"Tag 1" Tag2 "TAG 1" Tag3')
-
-    returns::
-
-        [('tag 1', 'Tag 1'), ('tag2', 'Tag2'), ('tag3', 'Tag3')]
-
-    and::
-
-        FlickrSerializer.tags2str(['tag 1', 'tag2', 'tag3'])
-
-    returns::
-
-        '"tag 1" tag2 tag3'
-
-    .. note::
-
-        Flickr tags are very... peculiar.  The test suite has lot of weird
-        cases and they all work exactly like Flickr. Please let me know if
-        there is a corner case I'm not covering.
     """
     SEPARATOR = ' '
 
