@@ -1,6 +1,8 @@
 tagtools
 ========
 
+.. currentmodule:: tagtools
+
 `tagtools <https://tabo.pe/projects/tagtools/>`_ is a python library that
 parses raw strings with tags into a list of tags and viceversa, written by
 `Gustavo Picón <https://tabo.pe>`_ and licensed under the Apache License 2.0.
@@ -26,6 +28,7 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   intro
    api
    flickr
    delicious
