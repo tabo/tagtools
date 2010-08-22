@@ -1,16 +1,16 @@
-CommaSerializer
+CommaTokenizer
 ===============
 
 .. currentmodule:: tagtools
 .. moduleauthor:: Gustavo Picon <tabo@tabo.pe>
 
-.. inheritance-diagram:: CommaSerializer
-.. autoclass:: CommaSerializer
+.. inheritance-diagram:: CommaTokenizer
+.. autoclass:: CommaTokenizer
    :show-inheritance:
 
     Example::
 
-        CommaSerializer.str2tags('Tag 1, Tag2, TAG 1, Tag3')
+        CommaTokenizer.str2tags('Tag 1, Tag2, TAG 1, Tag3')
 
     returns::
 
@@ -18,7 +18,7 @@ CommaSerializer
 
     and::
 
-        CommaSerializer.tags2str(['tag1', 'tag2', 'tag3'])
+        CommaTokenizer.tags2str(['tag1', 'tag2', 'tag3'])
 
     returns::
 

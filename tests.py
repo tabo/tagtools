@@ -2,16 +2,47 @@
 
 """Test tagtools.py"""
 
-from tagtools import FlickrSerializer, DeliciousSerializer, CommaSerializer, \
+from tagtools import FlickrTokenizer, DeliciousTokenizer, CommaTokenizer, \
                      TagWithSeparatorException
 import unittest
 
 
-class TestFlickrSerializer(unittest.TestCase):
+class TagToolTestCase(unittest.TestCase):
+    def _test(self, tagstr, expected):
+        got = self.serializer.str2tags(tagstr)
+        r = []
+        for tag in got:
+            if tag.is_machinetag:
+                r.append((tag.clean, tag.raw, tag.namespace, tag.predicate,
+                          tag.value))
+            else:
+                r.append((tag.clean, tag.raw))
+        self.assertEqual(len(got), len(expected))
+        for tag, exp in zip(got, expected):
+            if len(exp) == 5:
+                clean, raw, namespace, predicate, value = exp
+                is_machine = True
+            else:
+                if len(exp) == 2:
+                    clean, raw = exp
+                else:
+                    clean, raw = None, None
+                namespace, predicate, value = None, None, None
+                is_machine = False
+            self.assertEqual(is_machine, tag.is_machinetag)
+            self.assertEqual(clean, tag.clean)
+            self.assertEqual(raw, tag.raw)
+            self.assertEqual(namespace, tag.namespace)
+            self.assertEqual(predicate, tag.predicate)
+            self.assertEqual(value, tag.value)
+
+class TestFlickrTokenizer(TagToolTestCase):
+
+    def setUp(self):
+        self.serializer = FlickrTokenizer
 
     def test_flickr_str2tags(self):
-        def test(tagstr, expected):
-            self.assertEqual(expected, FlickrSerializer.str2tags(tagstr))
+        test = self._test
 
         # I know these tests look weird, but I actually tried all of them
         # in flickr. This is how flickr does tagging.
@@ -59,10 +90,18 @@ class TestFlickrSerializer(unittest.TestCase):
               ('2', '2'), ('tag3', 'tag3')])
         test('TaG taG GAT tag gat', [('tag', 'TaG'), ('gat', 'GAT')])
         test('"TaG" taG GAT "tag" g"a"t', [('tag', 'TaG'), ('gat', 'GAT')])
+        test(
+          'tag1 tag2:foo tag3:bar=baz tag4:aa="a b c d" "  tag5:bb="e f g h',
+          [('tag1', 'tag1'), ('tag2:foo', 'tag2:foo'),
+           ('tag3:bar=baz', 'tag3:bar=baz', 'tag3', 'bar', 'baz'),
+           ('tag4:aa=a b c d', 'tag4:aa=a b c d', 'tag4', 'aa', 'a b c d'),
+           ('tag5:bb=e', 'tag5:bb=e', 'tag5', 'bb', 'e'),
+           ('f', 'f'), ('g', 'g'), ('h', 'h')])
+
 
     def test_flickr_tags2str(self):
         def test(tags, expected):
-            self.assertEqual(expected, FlickrSerializer.tags2str(tags))
+            self.assertEqual(expected, FlickrTokenizer.tags2str(tags))
         test([], '')
         test(['t1'], 't1')
         test(['t1', 't2', 't3'], 't1 t2 t3')
@@ -83,12 +122,13 @@ class TestFlickrSerializer(unittest.TestCase):
               'tag1 tag number 2 tag3')
 
 
-class TestDeliciousSerializer(unittest.TestCase):
+class TestDeliciousTokenizer(TagToolTestCase):
+
+    def setUp(self):
+        self.serializer = DeliciousTokenizer
 
     def test_delicious_str2tags(self):
-        def test(tagstr, expected):
-            self.assertEqual(expected, DeliciousSerializer.str2tags(tagstr))
-
+        test = self._test
         test(None, [])
         test('', [])
         test(' ', [])
@@ -103,19 +143,22 @@ class TestDeliciousSerializer(unittest.TestCase):
 
     def test_delicious_tags2str(self):
         def test(tags, expected):
-            self.assertEqual(expected, DeliciousSerializer.tags2str(tags))
+            self.assertEqual(expected, DeliciousTokenizer.tags2str(tags))
         test([], '')
         test(['t1'], 't1')
         test(['t1', 't2', 't3'], 't1 t2 t3')
         test(['t1', 't2', 't3'], 't1 t2 t3')
         self.assertRaises(TagWithSeparatorException,
-            DeliciousSerializer.tags2str, ['t 1'])
+            DeliciousTokenizer.tags2str, ['t 1'])
 
 
-class TestCommaSerializer(unittest.TestCase):
+class TestCommaTokenizer(TagToolTestCase):
+
+    def setUp(self):
+        self.serializer = CommaTokenizer
+
     def test_comma_str2tags(self):
-        def test(tagstr, expected):
-            self.assertEqual(expected, CommaSerializer.str2tags(tagstr))
+        test = self._test
         test(None, [])
         test('', [])
         test(',', [])
@@ -134,13 +177,13 @@ class TestCommaSerializer(unittest.TestCase):
 
     def test_comma_tags2str(self):
         def test(tags, expected):
-            self.assertEqual(expected, CommaSerializer.tags2str(tags))
+            self.assertEqual(expected, CommaTokenizer.tags2str(tags))
         test([], '')
         test(['t1'], 't1')
         test(['t1', 't2', 't3'], 't1, t2, t3')
         test(['t  1', 't   2', 't 3'], 't  1, t   2, t 3')
         self.assertRaises(TagWithSeparatorException,
-            CommaSerializer.tags2str, ['t,1'])
+            CommaTokenizer.tags2str, ['t,1'])
 
 
 if __name__ == "__main__":  # pragma: no cover

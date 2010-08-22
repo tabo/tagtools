@@ -1,16 +1,16 @@
-FlickrSerializer
+FlickrTokenizer
 ================
 
 .. currentmodule:: tagtools
 .. moduleauthor:: Gustavo Picon <tabo@tabo.pe>
 
-.. inheritance-diagram:: FlickrSerializer
-.. autoclass:: FlickrSerializer
+.. inheritance-diagram:: FlickrTokenizer
+.. autoclass:: FlickrTokenizer
    :show-inheritance:
 
     Example::
 
-        FlickrSerializer.str2tags('"Tag 1" Tag2 "TAG 1" Tag3')
+        FlickrTokenizer.str2tags('"Tag 1" Tag2 "TAG 1" Tag3')
 
     returns::
 
@@ -18,7 +18,7 @@ FlickrSerializer
 
     and::
 
-        FlickrSerializer.tags2str(['tag 1', 'tag2', 'tag3'])
+        FlickrTokenizer.tags2str(['tag 1', 'tag2', 'tag3'])
 
     returns::
 

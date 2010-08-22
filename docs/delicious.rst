@@ -1,16 +1,16 @@
-DeliciousSerializer
+DeliciousTokenizer
 ===================
 
 .. currentmodule:: tagtools
 .. moduleauthor:: Gustavo Picon <tabo@tabo.pe>
 
-.. inheritance-diagram:: DeliciousSerializer
-.. autoclass:: DeliciousSerializer
+.. inheritance-diagram:: DeliciousTokenizer
+.. autoclass:: DeliciousTokenizer
    :show-inheritance:
 
     Example::
 
-        DeliciousSerializer.str2tags('Tag1 Tag2 TAG1 Tag3')
+        DeliciousTokenizer.str2tags('Tag1 Tag2 TAG1 Tag3')
 
     returns::
 
@@ -18,7 +18,7 @@ DeliciousSerializer
 
     and::
 
-        DeliciousSerializer.tags2str(['tag1', 'tag2', 'tag3'])
+        DeliciousTokenizer.tags2str(['tag1', 'tag2', 'tag3'])
 
     returns::
 

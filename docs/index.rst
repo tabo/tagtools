@@ -11,10 +11,11 @@ parses raw strings with tags into a list of tags and viceversa, written by
 
 - **Flexible**: Includes 3 different tag implementations with the same API:
 
-  1. Flickr (:class:`FlickrSerializer`)
-  2. Delicious (:class:`DeliciousSerializer`)
-  3. Comma separated tags (:class:`CommaSerializer`)
+  1. Flickr (:class:`FlickrTokenizer`)
+  2. Delicious (:class:`DeliciousTokenizer`)
+  3. Comma separated tags (:class:`CommaTokenizer`)
 
+- **Powerful**: Manages multi-dimensional tags (machine tags).
 - **Customizable**: Handles customizable per-tag normalization to avoid
   tag duplicates.
 - **Easy**: Simple :doc:`API <api>`
